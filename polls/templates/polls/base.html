@@ -1,1 +1,33 @@
-Hi
+<h1>My Votes</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Poll</th>
+            <th>Your Vote</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for vote in user_votes %}
+        <tr>
+            <td> {{ vote.choice.question.question_text }}</td>
+            <td>
+                {% if vote.choice.question.can_vote %}
+                <a href="{% url 'polls:detail' vote.choice.question.id %}"> {{ vote.choice.choice_text }} </a>
+                {% else %}
+                {{ vote.choice.choice_text }}
+                {% endif %}
+            </td>
+            <td>
+                {% if vote.choice.question.can_vote %}
+                <a href={% url "polls:delete_vote" vote.id %}>Delete</a>
+                {% else %}
+                Poll Closed
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'polls:index'%}">Back to Polls Index</a>
