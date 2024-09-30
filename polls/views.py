@@ -222,3 +222,30 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR', '').strip()
     return ip
+
+
+# Myvotes
+@login_required
+def myvotes(request):
+    try:
+        user_votes = Vote.objects.filter(user=request.user).select_related('choice__question').order_by('choice__question__pub_date')
+    except Vote.DoesNotExist:
+        messages.error(request, "You havn't vote to any polls")
+        user_votes = []
+    return render(request, 'polls/myvotes.html', {'user_votes': user_votes})
+
+
+# Delete
+def delete_vote(request, vote_id):
+    try:
+        # Try to find the user's vote
+        vote = Vote.objects.get(id=vote_id, user=request.user)
+        vote.delete()
+        messages.success(request, "Deleted successfully")
+    except Vote.DoesNotExist:
+        # If the vote doesn't exist, show an error message
+        messages.error(request, "Vote not found or not owned by you")
+    except KeyError:
+        # This will not likely happen here, but added for completeness
+        messages.error(request, "Invalid request. Unable to delete vote.")
+    return redirect('polls:myvotes')
