@@ -16,6 +16,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:latest
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_USER: your_postgres_database_username
+          POSTGRES_PASSWORD: your_postgres_database_password
+          POSTGRES_DB: ku_polls
+
     steps:
     - uses: actions/checkout@v3
 
@@ -30,7 +40,22 @@ jobs:
         pip install coverage
         pip install -r requirements.txt
 
+    - name: Set environment variables
+      run: |
+        echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
+        echo "DB_PORT=5432" >> $GITHUB_ENV
+
     - name: Run tests with coverage
+      env:
+        SECRET_KEY: secret-key-value-without-quotes
+        DEBUG: false
+        ALLOWED_HOSTS: localhost, 127.0.0.1, ::1, testserver
+        TIME_ZONE: Asia/Bangkok
+        POSTGRES_DB: ku_polls
+        DB_USER: your_postgres_database_username
+        DB_PWD: your_postgres_database_password
+        DB_HOST: 127.0.0.1
+        DB_PORT: 5432
       run: |
         coverage run --source='.' manage.py test
 
